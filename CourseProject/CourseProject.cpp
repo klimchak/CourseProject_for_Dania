@@ -1,5 +1,4 @@
-﻿#include "Header.h"
-#include <Windows.h>
+﻿#include <Windows.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -25,17 +24,7 @@ using nonstd::variant;
 #endif
 using Row_t = std::vector<variant<std::string, const char*, Table>>;
 
-                                                                /*
-                                                                глобальные переменные
-                                                                */
 
-bool choiceCreateFD = false;
-bool fileCreate;
-bool fileAdminCreate;
-bool availabilityAuto;
-vector<Auto> allAuto;
-bool availabilityAuto;
-int varSort = 1;
 /*
 структуры программы
 */
@@ -63,6 +52,18 @@ struct Auto
     string cost;
     AutoData Autoequipment;
 };
+
+/*
+глобальные переменные
+*/
+
+bool choiceCreateFD = false;
+bool fileCreate;
+bool fileAdminCreate;
+bool availabilityAuto;
+vector<Auto> allAuto;
+int varSort = 1;
+
                                                                 /*
                                                                 объявление всех функций
                                                                 */
@@ -73,7 +74,7 @@ bool CreateOrDeleteAdminFile();
 // запись данных в файла профиля
 string WorkProfileFD(Profile user, bool rePass, bool del);
 // сбор данных для пользователя
-Profile GetNewProfile();
+Profile GetNewProfileData();
 // Функции выбора в меню
 void GetChoiceMenuAdmin();
 void GetChoiceAutoDataFileData();
@@ -93,8 +94,6 @@ void PrintMenuUser();
 int getValueInt(string mess);
 // получения значения string
 string getValueStr(string mess);
-// проверка пароля и логина
-void GetLogiAndPass();
 // проверка на наличие файла данных
 bool SearchDataFile();
 // создание и затирание файла данных
@@ -105,8 +104,6 @@ Auto aggregationAutoData();
 bool creatRecordInFD(bool atMemory);
 // принт таблицы файла данных
 void printTable();
-// принт таблицы файла данных сокращенно
-void printTableAbbr();
 // поиск работника и принт таблицы
 void searchAndPrintTable(int change);
 // функция поиска в строке
@@ -303,7 +300,7 @@ string WorkProfileFD(Profile user, bool rePass, bool del)
 }
 
 // сбор данных для пользователя
-Profile GetNewProfile()
+Profile GetNewProfileData()
 {
     bool ok = false;
     Profile fileUser;
@@ -468,16 +465,9 @@ bool creatRecordInFD(bool atMemory)
                 + "#" + wk.model
                 + "#" + wk.departure_date
                 + "#" + wk.cost
-                + "#" + wk.educationAuto.nameEdComp
-                + "#" + wk.educationAuto.spacialization
-                + "#" + to_string(wk.educationAuto.yearEndEducation)
-                + "#" + wk.martStatus
-                + "#" + wk.homeTelNumber
                 + "#" + wk.Autoequipment.body
                 + "#" + wk.Autoequipment.color
-                + "#" + wk.Autoequipment.equipment
-                + "#" + wk.Autoequipment.workTelNumber
-                + "#" + wk.Autoequipment.dateStopWork;
+                + "#" + wk.Autoequipment.equipment;
             allString.push_back(outStrInterim);
         }
         std::ofstream out("dataFile.txt", std::ios::trunc);
@@ -526,9 +516,8 @@ void printTable()
         for (size_t i = 0; i <  allAuto.size(); i++)
         {
             Autos.add_row(Row_t{  allAuto[i].receipt_date,  allAuto[i].model,  allAuto[i].departure_date,  allAuto[i].cost,
-                                     allAuto[i].martStatus + "\n" +  allAuto[i].homeTelNumber,  allAuto[i].educationAuto.nameEdComp + "\n" +  allAuto[i].educationAuto.spacialization + "\n" +
-                                    to_string( allAuto[i].educationAuto.yearEndEducation) ,  allAuto[i].Autoequipment.body,  allAuto[i].Autoequipment.color + "\n" +
-                                     allAuto[i].Autoequipment.equipment + "\n" +  allAuto[i].Autoequipment.workTelNumber,  allAuto[i].Autoequipment.dateStopWork });
+                                  allAuto[i].Autoequipment.body,  allAuto[i].Autoequipment.color + "\n" +
+                                  allAuto[i].Autoequipment.equipment });
         }
         Autos.add_row(Row_t{ "Итого сотрудников: ", to_string( allAuto.size()), "", "", "", "", "", "", "" });
         Autos.column(0).format().font_align(FontAlign::center);
@@ -552,39 +541,6 @@ void printTable()
     }
 }
 
-// принт таблицы файла данных сокращенно
-void printTableAbbr()
-{
-    if ( allAuto.size() > 0)
-    {
-        Table Autos;
-        Autos.add_row(Row_t{ "Фамилия", "Имя", "Отчество", "Дата рождения", "Сем. положение \n" "Дом. телефон",
-                                "Сведения о найме:\n- отдел,\n- должность,\n- рабочий телефон" });
-        for (size_t i = 0; i <  allAuto.size(); i++)
-        {
-            Autos.add_row(Row_t{  allAuto[i].receipt_date,  allAuto[i].model,  allAuto[i].departure_date,  allAuto[i].cost,
-                                     allAuto[i].martStatus + "\n" +  allAuto[i].homeTelNumber,   allAuto[i].Autoequipment.color + "\n" +
-                                     allAuto[i].Autoequipment.equipment + "\n" +  allAuto[i].Autoequipment.workTelNumber });
-        }
-        Autos.add_row(Row_t{ "Итого сотрудников: ", to_string( allAuto.size()), "", "", "",  "" });
-        Autos.column(0).format().font_align(FontAlign::center);
-        Autos.column(1).format().font_align(FontAlign::center);
-        Autos.column(2).format().font_align(FontAlign::center);
-        Autos.column(3).format().font_align(FontAlign::center);
-        int a =  allAuto.size() + 1;
-        for (size_t i = 0; i < 6; ++i) {
-            Autos[0][i].format().font_color(Color::yellow).font_style({ FontStyle::bold });
-            Autos[a][i].format().font_color(Color::green).font_style({ FontStyle::bold });
-        }
-        std::cout << Autos << "\n\n";
-    }
-    else
-    {
-        cout << "                                               " << endl;
-        cout << "          Записей не обнаружено.               " << endl;
-        cout << "                                               " << endl;
-    }
-}
 
 // функция поиска в строке
 bool search(string query, string fundStr) {
@@ -789,7 +745,7 @@ bool deleteWirkerInMemory()
     string searchAutoLN = getValueStr("Введите фамилию работника");
     string searchAutoFN = getValueStr("Введите имя работника");
     int indexAuto = -1;
-    Auto iter =  allAuto.cbegin();
+    auto iter =  allAuto.cbegin();
     for (size_t i = 0; i <  allAuto.size(); i++)
     {
         if ( allAuto[i].model == searchAutoFN)
@@ -1750,7 +1706,6 @@ int main(int argc, char* argv[])
     int i = 1;
     while (ok == false)
     {
-        system("cls");
         continueAnsw = getValueInt("Ваш выбор:\n");
         if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3)
         { 
