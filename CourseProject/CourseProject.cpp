@@ -30,8 +30,8 @@ using Row_t = std::vector<variant<std::string, const char*, Table>>;
 */
 struct Profile
 {
-    char login[255];
-    char password[255];
+    string name;
+    string pass;
     int level;
 };
 
@@ -137,21 +137,38 @@ void PrintMenuMain()
     cout << "1 - Вход администора\n";
     cout << "2 - Вход менеджера\n";
     cout << "3 - Вход пользователя\n";
-    cout << "5 - Выход\n";
+    cout << "4 - Выход\n";
     cout << "Ваш выбор: ";
 }
 
 void PrintMenuAdmin()
 {
-    cout << "          Меню администратора\n";
-    cout << "\n";
-    cout << "Пожалуйста укажите пункт\n";
-    cout << "1 - Работа с файлом данных\n";
-    cout << "2 - Работа с записями в файле данных\n";
-    cout << "3 - Просмотр всех записей в таблице\n";
-    cout << "4 - Работа с учетными записями\n";
-    cout << "5 - Выход\n";
-    cout << "Ваш выбор: ";
+    if (!fileCreate)
+    {
+        cout << "=================================================\n";
+        cout << "              Меню администратора\n";
+        cout << "=================================================\n";
+        cout << "\n";
+        cout << "    Пожалуйста укажите пункт\n";
+        cout << "    1 - Работа с файлами данных\n";
+        cout << "    2 - Работа с учетными записями\n";
+        cout << "    3 - Выход\n";
+        cout << "    Ваш выбор: ";
+    }
+    else
+    {
+        cout << "=================================================\n";
+        cout << "              Меню администратора\n";
+        cout << "=================================================\n";
+        cout << "\n";
+        cout << "    Пожалуйста укажите пункт\n";
+        cout << "    1 - Работа с файлами данных\n";
+        cout << "    2 - Работа с записями в файле данных\n";
+        cout << "    3 - Просмотр всех записей в таблице\n";
+        cout << "    4 - Работа с учетными записями\n";
+        cout << "    5 - Выход\n";
+        cout << "    Ваш выбор: ";
+    }
 }
 
 void DisplayAutoDataFileData()
@@ -159,8 +176,8 @@ void DisplayAutoDataFileData()
     cout << "          Меню работы с файлами данных\n";
     cout << "\n";
     cout << "Пожалуйста укажите пункт\n";
-    cout << "1 - Создать файл данных сотрудников\n";
-    cout << "2 - Удалить файл данных сотрудников\n";
+    cout << "1 - Создать базу данных автомобилей\n";
+    cout << "2 - Удалить базу данных автомобилей\n";
     cout << "3 - Назад\n";
     cout << "4 - Выход\n";
     cout << "Ваш выбор: ";
@@ -189,9 +206,8 @@ void DisplayAutoDataProfile()
     cout << "1 - Добавление учетной записи\n";
     cout << "2 - Редактирование учетной записи\n";
     cout << "3 - Удаление учетной записи\n";
-    cout << "4 - Смена пароля учетной записи\n";
-    cout << "5 - Назад\n";
-    cout << "6 - Выход\n";
+    cout << "4 - Назад\n";
+    cout << "5 - Выход\n";
     cout << "Ваш выбор: ";
 }
 
@@ -226,28 +242,30 @@ void PrintMenuUser()
 // запись данных в файла профиля
 string WorkProfileFD(Profile user, bool rePass, bool del)
 {
-    string out;
-    string interString = (1, user.login);
-    ofstream fs;
+    ofstream fout;
     if (del)
     {
-        if (remove(user.login) != 0)
+        string out;
+        char* char_arr;
+        user.name = user.name + ".txt";
+        char_arr = &user.name[0];
+        if (remove(char_arr) != 0)
         {
-            out = "Ошибка удаления. Попробуйте вручную.\n";
+            out = "    Ошибка удаления. Попробуйте вручную.\n";
         }
         else
         {
             if (user.level == 1)
             {
-                out = "Удален администратор " + interString + "\n";
+                out = "    Удален администратор " + user.name + "\n";
             }
             if (user.level == 2)
             {
-                out = "Удален менеджер " + interString + "\n";
+                out = "    Удален менеджер " + user.name + "\n";
             }
             if (user.level == 3)
             {
-                out = "Удален пользователь " + interString + "\n";
+                out = "    Удален пользователь " + user.name + "\n";
             }
         }
         return out;
@@ -256,42 +274,45 @@ string WorkProfileFD(Profile user, bool rePass, bool del)
     {
         if (rePass)
         {
-            fs.open(user.login, std::ios::out | std::ios::binary | ios_base::trunc);
+            fout.open(user.name + ".txt", ios_base::trunc);
         }
         else
         {
-            fs.open(user.login, std::ios::out | std::ios::binary | ios_base::app);
+            fout.open(user.name + ".txt", ios_base::app);
         }
-        fs.write((char*)&user, sizeof(Profile));
-        fs.close();
+        fout << user.name + "\n";
+        fout << user.pass + "\n";
+        fout << user.level;
+        fout.close();
+        string out;
         if (rePass)
         {
             if (user.level == 2)
             {
-                out = "Изменен пароль администратора " + interString + "\n";
+                out = "    Изменен пароль администратора " + user.name + "\n";
             }
             if (user.level == 2)
             {
-                out = "Изменен пароль менеджера " + interString + "\n";
+                out = "    Изменен пароль менеджера " + user.name + "\n";
             }
             if (user.level == 3)
             {
-                out = "Изменен пароль пользователя " + interString + "\n";
+                out = "    Изменен пароль пользователя " + user.name + "\n";
             }
         }
         else
         {
             if (user.level == 2)
             {
-                out = "Создан администратор " + interString + "\n";
+                out = "    Создан администратор " + user.name + "\n";
             }
             if (user.level == 2)
             {
-                out = "Создан менеджер " + interString + "\n";
+                out = "    Создан менеджер " + user.name + "\n";
             }
             if (user.level == 3)
             {
-                out = "Создан пользователь " + interString + "\n";
+                out = "    Создан пользователь " + user.name + "\n";
             }
         }
         return out;
@@ -304,28 +325,9 @@ Profile GetNewProfileData()
 {
     bool ok = false;
     Profile fileUser;
-    cout << "Введите имя объекта:\n";
-    cin >> fileUser.login;
-    cout << "Введите пароль:\n";
-    cin >> fileUser.password;
-    int i = 1;
-    while (true)
-    {
-        if (i > 1)
-        {
-            cout << "Ошибка. Повторите ввод. Варианты для выбора:\n1 - Администратор\n2 - Менеджер\n3 - Пользователь\nВаш выбор:\n";
-        }
-        else
-        {
-            cout << "Введите уровень доступа:\n1 - Администратор\n2 - Менеджер\n3 - Пользователь\nВаш выбор:\n";
-        }
-
-        cin >> fileUser.level;
-        if (fileUser.level == 1 || fileUser.level == 2 || fileUser.level == 3)
-        {
-            break;
-        }
-    }
+    fileUser.name = getValueStr("    Введите имя объекта");
+    fileUser.pass = getValueStr("    Введите пароль");
+    fileUser.level = getValueInt("    Введите уровень доступа:\n1 - Администратор\n2 - Менеджер\n3 - Пользователь\nВаш выбор: ");
     return fileUser;
 }
 
@@ -840,7 +842,7 @@ bool CreateOrDeleteFD(bool createOrDelete)
 // проеверка файла админа
 bool CreateOrDeleteAdminFile()
 {
-    ifstream fin("admin", ios_base::in);
+    ifstream fin("admin.txt", ios_base::in);
     if (!fin.is_open())
     {
         return false;
@@ -1104,13 +1106,13 @@ void GetChoiceAutoDataRecords()
         cout << "Редактирование записи" << endl;
         if (changeWirkerInMemory())
         {
-            cout << "Данные работника изменены" << endl;
+            cout << "    Данные работника изменены" << endl;
             system("pause");
             GetChoiceAutoDataRecords();
         }
         else
         {
-            cout << "Ошибка. Данные не изменены." << endl;
+            cout << "    Ошибка. Данные не изменены." << endl;
             system("pause");
             GetChoiceAutoDataRecords();
         }
@@ -1235,7 +1237,7 @@ void GetChoiceAutoDataProfile()
     Profile interimProfile;
     Profile fileUser;
     string out;
-    char oldUserName[127];
+    string oldUserName;
     int continueAnsw;
     bool ok = false;
     ifstream fin;
@@ -1245,7 +1247,7 @@ void GetChoiceAutoDataProfile()
         system("cls");
         cout << "Добавление новой учетной записи" << endl;
         newUser = GetNewProfileData();
-        fin.open(newUser.login, ios_base::in | std::ios::binary);
+        fin.open(newUser.name, ios_base::in | std::ios::binary);
         if (!fin.is_open()) // если файл не открыт
         {
             while (ok == false)
@@ -1289,12 +1291,11 @@ void GetChoiceAutoDataProfile()
         system("cls");
         cout << "Редактирование учетной записи" << endl;
         cout << "\n";
-        cout << "Введите имя учетной записи, которую желаете изменить:\n";
-        cin >> newUser.login;
-        fin.open(newUser.login, ios_base::in);
-        if (!fin.is_open())
+        newUser.name = getValueStr("    Введите имя учетной записи, которую желаете изменить");
+        fin.open(newUser.name + ".txt", ios_base::in);
+        if (!fin.is_open()) // если файл не открыт
         {
-            cout << "Пользователь с таким логином не найден.\n";
+            cout << "    Пользователь с таким логином не найден.\n";
             system("pause");
             GetChoiceAutoDataProfile();
             ok = false;
@@ -1306,23 +1307,23 @@ void GetChoiceAutoDataProfile()
             ok = false;
             while (ok == false)
             {
-                continueAnsw = getValueInt("Продолжаем?\n1 - Да\n2 - нет\n");
+                continueAnsw = getValueInt("    Продолжаем?\n1 - Да\n2 - нет\n");
                 if (continueAnsw == 1 || continueAnsw == 2)
                 {
                     ok = true;
                 }
                 else
                 {
-                    cout << "Введите одно из указанных чисел.\n";
+                    cout << "    Введите одно из указанных чисел.\n";
                 }
             }
             if (continueAnsw == 1)
             {
-                cout << "Введите новые данные учетной записи\n";
+                cout << "    Введите новые данные учетной записи\n";
                 interimProfile = GetNewProfileData();
                 out = WorkProfileFD(interimProfile, true, false);
-                cout << "Учетная запись изменена\n";
-                if (strcmp(newUser.login, interimProfile.login) != 0)
+                cout << "    Учетная запись изменена\n";
+                if (newUser.name != interimProfile.name)
                 {
                     WorkProfileFD(newUser, false, true);
                 }
@@ -1331,7 +1332,7 @@ void GetChoiceAutoDataProfile()
             }
             if (continueAnsw == 2)
             {
-                cout << "Операция прервана\n";
+                cout << "    Операция прервана\n";
                 GetChoiceAutoDataProfile();
             }
             ok = false;
@@ -1343,16 +1344,13 @@ void GetChoiceAutoDataProfile()
         ok = false;
         while (ok == false)
         {
-            
-            cout << "Введите логин удаляемого объекта\n" << endl;
-            cin >> newUser.login;
-            ifstream finn(newUser.login, ios_base::in);
-            if (!finn.is_open())
+            system("pause");
+            oldUserName = getValueStr("    Введите логин удаляемого объекта");
+            string interimFN = oldUserName + ".txt";
+            ifstream finn(interimFN, ios_base::in);
+            if (!finn.is_open()) // если файл не открыт
             {
-                cout << "Пользователь с таким логином не найден!\n";
-                system("pause");
-                GetChoiceAutoDataProfile();
-                break;
+                cout << "    Пользователь с таким логином не найден!\n";
             }
             else
             {
@@ -1375,6 +1373,7 @@ void GetChoiceAutoDataProfile()
         }
         if (continueAnsw == 1)
         {
+            newUser.name = oldUserName;
             out = WorkProfileFD(newUser, false, true);
             cout << out;
             system("pause");
@@ -1382,43 +1381,15 @@ void GetChoiceAutoDataProfile()
         }
         if (continueAnsw == 2)
         {
-            cout << "Операция прервана\n";
+            cout << "    Операция прервана\n";
             GetChoiceAutoDataProfile();
         }
 
         break;
     case 4:
-        system("cls");
-        cout << "Смена пароля учетной записи" << endl;
-        while (ok == false)
-        {
-            system("cls");
-            char choiceLogin[127];
-            cout << "Введите логин изменяемого объекта:\n";
-            cin >> choiceLogin;
-            ifstream openFile(choiceLogin, std::ios::in | std::ios::binary | std::ios::app);
-            if (!openFile.is_open())
-            {
-                cout << "Пользователь с таким логином не найден!\n";
-            }
-            else
-            {
-                openFile.read((char*)&fileUser, sizeof(Profile));
-                openFile.close();
-                ok = true;
-            }
-        }
-        cout << "Введите новый пароль:\n";
-        cin >> fileUser.password;
-        out = WorkProfileFD(fileUser, true, false);
-        cout << "пароль изменен \n";
-        system("pause");
-        GetChoiceAutoDataProfile();
-        break;
-    case 5:
         GetChoiceMenuAdmin();
         break;
-    case 6:
+    case 5:
         cout << "Выход!\n";
         exit(0);
     default:
@@ -1586,8 +1557,8 @@ void GetChoiceMenuUser()
     system("cls");
     if (!fileCreate || !availabilityAuto)
     {
-        cout << "Базы автомобилей не существует" << endl;
-        cout << "      или записей не обнаружено" << endl;
+        cout << "     Базы автомобилей не существует" << endl;
+        cout << "       или записей не обнаружено" << endl;
         system("pause");
         cout << "Выход!\n";
         exit(0);
@@ -1692,17 +1663,59 @@ int main(int argc, char* argv[])
     // установка локали
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
+    fileCreate = SearchDataFile();
+    // проверка фала админа
+    if (!CreateOrDeleteAdminFile())
+    {
+        int continueAnsw;
+        bool ok = false;
+        Profile admin;
+        string out;
+        while (ok == false)
+        {
+            system("cls");
+            cout << "                             ===================================================" << endl;
+            cout << "                                          Администратор не обнаружен            " << endl;
+            cout << "                             ===================================================" << endl;
+            continueAnsw = getValueInt("    Создать админа?\n1 - Да\n2 - нет\n");
+            if (continueAnsw == 1 || continueAnsw == 2)
+            {
+                switch (continueAnsw)
+                {
+                case 1:
+                    admin.name = "admin";
+                    admin.pass = "pass";
+                    admin.level = 1;
+                    out = WorkProfileFD(admin, false, false);
+                    cout << out;
+                    cout << "\n    пароль для входа: pass\n";
+                    system("pause");
+                    ok = true;
+                    break;
+                case 2:
+                    cout << "    Выход!\n";
+                    exit(0);
+                default:
+                    cout << "    Выход!\n";
+                    exit(0);
+                }
+            }
+            else
+            {
+                cout << "    Введите одно из указанных чисел.\n" << endl;
+            }
+        }
+    }
     // отображение меню выбора пользователя
     PrintMenuMain();
     // нужные переменные
     int continueAnsw;
     bool ok = false;
     string out;
-    Profile searchUD;
     bool okTwo = false;
-    char fileLogin[127];
-    char filePass[127];
-    int Profile = 0;
+    string fileLogin;
+    string filePass;
+    int profile = 0;
     int i = 1;
     while (ok == false)
     {
@@ -1714,10 +1727,8 @@ int main(int argc, char* argv[])
                 if (i == 1)
                 {
                     system("cls");
-                    char choiceLogin[127];
-                    cout << "Введите логин:\n";
-                    cin >> choiceLogin;
-                    std::ifstream openFile(choiceLogin, std::ios::in | std::ios::binary);
+                    string name = getValueStr("Введите логин:");
+                    std::ifstream openFile(name + ".txt", std::ios::in);
                     if (!openFile.is_open())
                     {
                         cout << "Пользователь с таким логином не найден!\n";
@@ -1744,7 +1755,15 @@ int main(int argc, char* argv[])
                     }
                     else
                     {
-                        openFile.read((char*)&searchUD, sizeof(Profile));
+                        string line;
+                        int j = 1;
+                        while (getline(openFile, line))
+                        {
+                            if (j == 1) { fileLogin = line; }
+                            if (j == 2) { filePass = line; }
+                            if (j == 3) { profile = stoi(line); }
+                            j++;
+                        }
                         openFile.close();
                         i = 2;
                     }
@@ -1752,12 +1771,10 @@ int main(int argc, char* argv[])
                 if (i == 2)
                 {
                     system("cls");
-                    char choicePass[127];
-                    cout << "Введите пароль:\n";
-                    cin >> choicePass;;
-                    if (strcmp(choicePass, searchUD.password) == 0)
+                    string pass = getValueStr("Введите пароль:");
+                    if (pass == filePass)
                     {
-                        ok = true;
+                        okTwo = true;
                     }
                     else
                     {
@@ -1785,9 +1802,9 @@ int main(int argc, char* argv[])
                     }
                 }
             }
-            if (searchUD.level == 1) { GetChoiceMenuAdmin(); }
-            if (searchUD.level == 2) { GetChoiceMenuManager(); }
-            if (searchUD.level == 3) { GetChoiceMenuUser(); }
+            if (profile == 1) { GetChoiceMenuAdmin(); }
+            if (profile == 2) { GetChoiceMenuManager(); }
+            if (profile == 3) { GetChoiceMenuUser(); }
         }
         else if (continueAnsw == 4)
         {
@@ -1801,3 +1818,6 @@ int main(int argc, char* argv[])
         }
     }
 }
+
+
+
