@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
+    <ClInclude Include="resource2.h" />
     <ClInclude Include="tabulate\asciidoc_exporter.hpp" />
     <ClInclude Include="tabulate\cell.hpp" />
     <ClInclude Include="tabulate\color.hpp" />
@@ -164,6 +165,9 @@
     <ClInclude Include="tabulate\termcolor.hpp" />
     <ClInclude Include="tabulate\utf8.hpp" />
     <ClInclude Include="tabulate\variant_lite.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
