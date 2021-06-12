@@ -25,9 +25,9 @@ using nonstd::variant;
 using Row_t = std::vector<variant<std::string, const char*, Table>>;
 
 
-/*
-структуры программы
-*/
+                                                                /*
+                                                                структуры программы
+                                                                */
 struct Profile
 {
     string name;
@@ -46,16 +46,17 @@ struct AutoData
 // общие сведения о машине
 struct Auto
 {
+    int id;
     string model;
     string receipt_date;
     string departure_date;
-    string cost;
+    int cost;
     AutoData Autoequipment;
 };
 
-/*
-глобальные переменные
-*/
+                                                                /*
+                                                                глобальные переменные
+                                                                */
 
 bool choiceCreateFD = false;
 bool fileCreate;
@@ -82,7 +83,7 @@ void GetChoiceAutoDataRecords();
 void GetChoiceAutoDataProfile();
 void GetChoiceMenuManager();
 void GetChoiceMenuUser();
-// функции принта меню
+// функции вывода меню
 void PrintMenuAdmin();
 void DisplayAutoDataFileData();
 void DisplayAutoDataRecords();
@@ -98,33 +99,30 @@ string getValueStr(string mess);
 bool SearchDataFile();
 // создание и затирание файла данных
 bool CreateOrDeleteFD(bool createOrDelete);
-// сбор сведений по работнику
+// сбор сведений по авто
 Auto aggregationAutoData();
-// запись данных нового работника в файл данных (перезапись файла)
+// запись данных нового авто в файл данных (перезапись файла)
 bool creatRecordInFD(bool atMemory);
 // принт таблицы файла данных
 void printTable();
-// поиск работника и принт таблицы
+// поиск авто и принт таблицы
 void searchAndPrintTable(int change);
 // функция поиска в строке
 bool search(string query, string fundStr);
-// получение данных работников в память
+// получение данных авто в память
 void getAllAutoFD();
-// удаление данных работника в памяти и перезапись в файл
+// удаление данных авто в памяти и перезапись в файл
 bool deleteWirkerInMemory();
-// изменение данных работника в памяти и перезапись в файл
+// изменение данных авто в памяти и перезапись в файл
 bool changeWirkerInMemory();
 //сортировка
-// компаратор last name
-bool compararereceipt_date(const Auto lhs, const Auto rhs);
-// компаратор first name
-bool compararemodel(const Auto lhs, const Auto rhs);
-// компаратор departure_date
-bool compararecolor(const Auto lhs, const Auto rhs);
+// компаратор по модели
+bool comparareModel(const Auto lhs, const Auto rhs);
+// компаратор по цвету
+bool comparareColor(const Auto lhs, const Auto rhs);
 // функция сортировки
-void sortLN();
-void sortFN();
-void sortDep();
+void sortModel();
+void sortColor();
 
                                                                 /*
                                                                 функции вывода меню
@@ -369,22 +367,9 @@ string getValueStr(string mess)
                                                                 */
 
 
-// -------------------------------------------------====
-//         сортировка
-// -------------------------------------------------====
+// сортировка
 // компараторы
-bool compararereceipt_date(const Auto lhs, const Auto rhs) {
-    if (varSort == 1)
-    {
-        return lhs.receipt_date > rhs.receipt_date;
-    }
-    else
-    {
-        return lhs.receipt_date < rhs.receipt_date;
-    }
-
-}
-bool compararemodel(const Auto lhs, const Auto rhs) {
+bool comparareModel(const Auto lhs, const Auto rhs) {
     if (varSort == 1)
     {
         return lhs.model > rhs.model;
@@ -393,8 +378,9 @@ bool compararemodel(const Auto lhs, const Auto rhs) {
     {
         return lhs.model < rhs.model;
     }
+
 }
-bool compararecolor(const Auto lhs, const Auto rhs) {
+bool comparareColor(const Auto lhs, const Auto rhs) {
     if (varSort == 1)
     {
         return lhs.Autoequipment.color > rhs.Autoequipment.color;
@@ -403,11 +389,10 @@ bool compararecolor(const Auto lhs, const Auto rhs) {
     {
         return lhs.Autoequipment.color < rhs.Autoequipment.color;
     }
-
 }
-// сортировка по фамилии
-void sortLN() {
-    sort( allAuto.begin(),  allAuto.end(), compararereceipt_date);
+// сортировка по модели
+void sortModel() {
+    sort( allAuto.begin(),  allAuto.end(), comparareModel);
     if (varSort == 1)
     {
         varSort = 2;
@@ -417,21 +402,9 @@ void sortLN() {
         varSort = 1;
     }
 }
-// сортировка по имени
-void sortFN() {
-    sort( allAuto.begin(),  allAuto.end(), compararemodel);
-    if (varSort == 1)
-    {
-        varSort = 2;
-    }
-    else
-    {
-        varSort = 1;
-    }
-}
-// сортировка по отделу
-void sortDep() {
-    sort( allAuto.begin(),  allAuto.end(), compararecolor);
+// сортировка по цвету
+void sortColor() {
+    sort( allAuto.begin(),  allAuto.end(), comparareColor);
     if (varSort == 1)
     {
         varSort = 2;
@@ -453,7 +426,7 @@ vector<string> split(const string& s, char delim) {
     return result;
 }
 
-// запись данных нового работника в файл данных (перезапись файла)
+// запись данных нового авто в файл данных (перезапись файла)
 bool creatRecordInFD(bool atMemory)
 {
     if (atMemory)
@@ -463,10 +436,11 @@ bool creatRecordInFD(bool atMemory)
         for (Auto wk :  allAuto)
         {
             string outStrInterim = "";
-            outStrInterim = outStrInterim + "#" + wk.receipt_date
+            outStrInterim = outStrInterim + "#" + to_string(wk.id)
                 + "#" + wk.model
+                + "#" + wk.receipt_date
                 + "#" + wk.departure_date
-                + "#" + wk.cost
+                + "#" + to_string(wk.cost)
                 + "#" + wk.Autoequipment.body
                 + "#" + wk.Autoequipment.color
                 + "#" + wk.Autoequipment.equipment;
@@ -479,7 +453,6 @@ bool creatRecordInFD(bool atMemory)
             {
                 out << strInFile << std::endl;
             }
-
         }
         out.close();
         return true;
@@ -488,10 +461,11 @@ bool creatRecordInFD(bool atMemory)
     {
         Auto newAuto = aggregationAutoData();
         string outStr = "";
-        outStr = outStr + "#" + newAuto.receipt_date
+        outStr = outStr + "#" + to_string(newAuto.id)
             + "#" + newAuto.model
+            + "#" + newAuto.receipt_date
             + "#" + newAuto.departure_date
-            + "#" + newAuto.cost
+            + "#" + to_string(newAuto.cost)
             + "#" + newAuto.Autoequipment.body
             + "#" + newAuto.Autoequipment.color
             + "#" + newAuto.Autoequipment.equipment;
@@ -511,29 +485,37 @@ void printTable()
 {
     if ( allAuto.size() > 0)
     {
-        Table Autos;
-        Autos.add_row(Row_t{ "Фамилия", "Имя", "Отчество", "Дата рождения", "Сем. положение \n" "Дом. телефон",
-                                "Образование:\n- оконченное УО;\n- специализация\n- год окончания", "Дата приёма",
-                                "Сведения о найме:\n- отдел,\n- должность,\n- рабочий телефон", "Дата увольнения" });
-        for (size_t i = 0; i <  allAuto.size(); i++)
+        Table AutosAll;
+        AutosAll.add_row(Row_t{ "№ в базе", "Модель", "Дата поступления", "Дата продажи", "Стоимость",
+                        "Кузов", "Цвет", "Комплектация" });
+        for (size_t i = 0; i < allAuto.size(); i++)
         {
-            Autos.add_row(Row_t{  allAuto[i].receipt_date,  allAuto[i].model,  allAuto[i].departure_date,  allAuto[i].cost,
-                                  allAuto[i].Autoequipment.body,  allAuto[i].Autoequipment.color + "\n" +
-                                  allAuto[i].Autoequipment.equipment });
+            AutosAll.add_row(Row_t{
+                to_string(allAuto[i].id), 
+                allAuto[i].model, 
+                allAuto[i].receipt_date,
+                allAuto[i].departure_date,
+                to_string(allAuto[i].cost), 
+                allAuto[i].Autoequipment.body, 
+                allAuto[i].Autoequipment.color,
+                allAuto[i].Autoequipment.equipment 
+                });
         }
-        Autos.add_row(Row_t{ "Итого сотрудников: ", to_string( allAuto.size()), "", "", "", "", "", "", "" });
-        Autos.column(0).format().font_align(FontAlign::center);
-        Autos.column(1).format().font_align(FontAlign::center);
-        Autos.column(2).format().font_align(FontAlign::center);
-        Autos.column(3).format().font_align(FontAlign::center);
-        Autos.column(6).format().font_align(FontAlign::center);
-        Autos.column(8).format().font_align(FontAlign::center);
-        int a =  allAuto.size() + 1;
-        for (size_t i = 0; i < 9; ++i) {
-            Autos[0][i].format().font_color(Color::yellow).font_style({ FontStyle::bold });
-            Autos[a][i].format().font_color(Color::green).font_style({ FontStyle::bold });
+        AutosAll.add_row(Row_t{ "Итого автомобилей: ", to_string( allAuto.size()), "", "", "", "", "" });
+        AutosAll.column(0).format().font_align(FontAlign::center);
+        AutosAll.column(1).format().font_align(FontAlign::center);
+        AutosAll.column(2).format().font_align(FontAlign::center);
+        AutosAll.column(3).format().font_align(FontAlign::center);
+        AutosAll.column(4).format().font_align(FontAlign::center);
+        AutosAll.column(5).format().font_align(FontAlign::center);
+        AutosAll.column(6).format().font_align(FontAlign::center);
+        AutosAll.column(7).format().font_align(FontAlign::center);
+        int a = allAuto.size() + 1;
+        for (size_t i = 0; i < 8; ++i) {
+            AutosAll[0][i].format().font_color(Color::yellow).font_style({ FontStyle::bold });
+            AutosAll[a][i].format().font_color(Color::green).font_style({ FontStyle::bold });
         }
-        std::cout << Autos << "\n\n";
+        std::cout << AutosAll << "\n\n";
     }
     else
     {
@@ -542,7 +524,6 @@ void printTable()
         cout << "                                               " << endl;
     }
 }
-
 
 // функция поиска в строке
 bool search(string query, string fundStr) {
@@ -559,7 +540,7 @@ bool search(string query, string fundStr) {
         return false;
 }
 
-// поиск работника и принт таблицы
+// поиск авто и принт таблицы
 void searchAndPrintTable(int change)
 {
     if ( allAuto.size() > 0)
@@ -571,33 +552,19 @@ void searchAndPrintTable(int change)
         switch (change)
         {
         case 1:
-            query = getValueStr("Введите фамилию работника");
+            query = getValueStr("Введите модель авто");
             break;
         case 2:
-            query = getValueStr("Введите имя работника");
-            break;
-        case 3:
-            query = getValueStr("Введите отчетсво работника");
-            break;
-        case 4:
-            query = getValueStr("Введите отдел");
+            query = getValueStr("Введите цвет авто");
             break;
         }
         for (size_t i = 0; i <  allAuto.size(); i++)
         {
-            if (change == 1 && search(query,  allAuto[i].receipt_date))
+            if (change == 1 && search(query,  allAuto[i].model))
             {
                 searchAutos.push_back( allAuto[i]);
             }
-            if (change == 2 && search(query,  allAuto[i].model))
-            {
-                searchAutos.push_back( allAuto[i]);
-            }
-            if (change == 3 && search(query,  allAuto[i].departure_date))
-            {
-                searchAutos.push_back( allAuto[i]);
-            }
-            if (change == 4 && search(query,  allAuto[i].Autoequipment.color))
+            if (change == 2 && search(query,  allAuto[i].Autoequipment.color))
             {
                 searchAutos.push_back( allAuto[i]);
             }
@@ -605,24 +572,32 @@ void searchAndPrintTable(int change)
         if (searchAutos.size() > 0)
         {
             Table Autos;
-            Autos.add_row(Row_t{ "Фамилия", "Имя", "Отчество", "Дата рождения", "Сем. положение \n" "Дом. телефон",
-                                    "Образование:\n- оконченное УО;\n- специализация\n- год окончания", "Дата приёма",
-                                    "Сведения о найме:\n- отдел,\n- должность,\n- рабочий телефон", "Дата увольнения" });
+            Autos.add_row(Row_t{ "№ в базе", "Модель", "Дата поступления", "Дата продажи", "Стоимость",
+                                    "Кузов", "Цвет", "Комплектация" });
             for (size_t i = 0; i < searchAutos.size(); i++)
             {
-                Autos.add_row(Row_t{ searchAutos[i].receipt_date, searchAutos[i].model, searchAutos[i].departure_date, searchAutos[i].cost, 
-                                        searchAutos[i].Autoequipment.body, searchAutos[i].Autoequipment.color + "\n" +
-                                        searchAutos[i].Autoequipment.equipment });
+                Autos.add_row(Row_t{ 
+                    to_string(searchAutos[i].id), 
+                    searchAutos[i].model,
+                    searchAutos[i].receipt_date,
+                    searchAutos[i].departure_date,
+                    to_string(searchAutos[i].cost), 
+                    searchAutos[i].Autoequipment.body, 
+                    searchAutos[i].Autoequipment.color,
+                    searchAutos[i].Autoequipment.equipment 
+                    });
             }
-            Autos.add_row(Row_t{ "Найдено сотрудников: ", to_string(searchAutos.size()), "", "", "", "", "", "", "" });
+            Autos.add_row(Row_t{ "Найдено автомобилей: ", to_string(searchAutos.size()), "", "", "", "", "" });
             Autos.column(0).format().font_align(FontAlign::center);
             Autos.column(1).format().font_align(FontAlign::center);
             Autos.column(2).format().font_align(FontAlign::center);
             Autos.column(3).format().font_align(FontAlign::center);
+            Autos.column(4).format().font_align(FontAlign::center);
+            Autos.column(5).format().font_align(FontAlign::center);
             Autos.column(6).format().font_align(FontAlign::center);
-            Autos.column(8).format().font_align(FontAlign::center);
+            Autos.column(7).format().font_align(FontAlign::center);
             int a = searchAutos.size() + 1;
-            for (size_t i = 0; i < 9; ++i) {
+            for (size_t i = 0; i < 8; ++i) {
                 Autos[0][i].format().font_color(Color::yellow).font_style({ FontStyle::bold });
                 Autos[a][i].format().font_color(Color::green).font_style({ FontStyle::bold });
             }
@@ -644,7 +619,7 @@ void searchAndPrintTable(int change)
     }
 }
 
-// получение данных работников в память
+// получение данных авто в память
 void getAllAutoFD()
 {
     int amountOfAuto = 0;
@@ -673,24 +648,27 @@ void getAllAutoFD()
                 switch (i)
                 {
                 case 1:
-                    interimAuto.receipt_date = AutoVect[i];
+                    interimAuto.id = stoi(AutoVect[i]);
                     break;
                 case 2:
                     interimAuto.model = AutoVect[i];
                     break;
                 case 3:
-                    interimAuto.departure_date = AutoVect[i];
+                    interimAuto.receipt_date = AutoVect[i];
                     break;
                 case 4:
-                    interimAuto.cost = AutoVect[i];
+                    interimAuto.departure_date = AutoVect[i];
                     break;
                 case 5:
-                    interimAuto.Autoequipment.body = AutoVect[i];
+                    interimAuto.cost = stoi(AutoVect[i]);
                     break;
                 case 6:
-                    interimAuto.Autoequipment.color = AutoVect[i];
+                    interimAuto.Autoequipment.body = AutoVect[i];
                     break;
                 case 7:
+                    interimAuto.Autoequipment.color = AutoVect[i];
+                    break;
+                case 8:
                     interimAuto.Autoequipment.equipment = AutoVect[i];
                     break;
                 }
@@ -708,20 +686,16 @@ void getAllAutoFD()
     }
 }
 
-// изменение данных работника в памяти и перезапись в файл
+// изменение данных авто в памяти и перезапись в файл
 bool changeWirkerInMemory()
 {
-    string searchAutoLN = getValueStr("Введите фамилию работника");
-    string searchAutoFN = getValueStr("Введите имя работника");
+    int searchAutoLN = getValueInt("Введите номер авто в базе");
     int indexAuto = -1;
     for (size_t i = 0; i <  allAuto.size(); i++)
     {
-        if ( allAuto[i].model == searchAutoFN)
+        if ( allAuto[i].id == searchAutoLN)
         {
-            if ( allAuto[i].receipt_date == searchAutoLN)
-            {
-                indexAuto = i;
-            }
+            indexAuto = i;
         }
 
     }
@@ -730,7 +704,7 @@ bool changeWirkerInMemory()
         return false;
     }
     Auto newAuto = aggregationAutoData();
-     allAuto[indexAuto] = newAuto;
+    allAuto[indexAuto] = newAuto;
     if (creatRecordInFD(true))
     {
         return true;
@@ -741,21 +715,17 @@ bool changeWirkerInMemory()
     }
 }
 
-// удаление данных работника в памяти и перезапись в файл
+// удаление данных авто в памяти и перезапись в файл
 bool deleteWirkerInMemory()
 {
-    string searchAutoLN = getValueStr("Введите фамилию работника");
-    string searchAutoFN = getValueStr("Введите имя работника");
+    int searchAutoLN = getValueInt("Введите номер авто в базе");
     int indexAuto = -1;
     auto iter =  allAuto.cbegin();
     for (size_t i = 0; i <  allAuto.size(); i++)
     {
-        if ( allAuto[i].model == searchAutoFN)
+        if ( allAuto[i].id == searchAutoLN)
         {
-            if ( allAuto[i].receipt_date == searchAutoLN)
-            {
-                indexAuto = i;
-            }
+            indexAuto = i;
         }
 
     }
@@ -777,23 +747,14 @@ bool deleteWirkerInMemory()
 // сбор сведений по авто
 Auto aggregationAutoData() {
     Auto newAuto;
-    newAuto.model = getValueStr("Введите имя");
-    newAuto.receipt_date = getValueStr("Введите фамилию");
-    newAuto.departure_date = getValueStr("Введите отчество");
-    newAuto.cost = getValueStr("Введите дату рождения в формате мм-дд-гггг : ");
-    char* intStr;
-    string intStrLine = getValueStr("Введите номер в формате 121234567");
-    intStr = &intStrLine[0];
-    string intStrEnd = "";
-    intStrEnd = intStrEnd + "+375(" + intStr[0] + intStr[1] + ")" + intStr[2] + intStr[3] + intStr[4] + "-" + intStr[5] + intStr[6] + "-" + intStr[7] + intStr[8];
-    newAuto.Autoequipment.body = getValueStr("Введите дату прриема на работу в формате мм-дд-гггг : ");
-    newAuto.Autoequipment.color = getValueStr("Введите название отдела : ");
-    newAuto.Autoequipment.equipment = getValueStr("Введите должность : ");
-    char* intStr2;
-    string intStrLine2 = getValueStr("Введите номер в формате 121234567");
-    intStr2 = &intStrLine2[0];
-    string intStrEnd2 = "";
-    intStrEnd2 = intStrEnd2 + "+375(" + intStr2[0] + intStr2[1] + ")" + intStr2[2] + intStr2[3] + intStr2[4] + "-" + intStr2[5] + intStr2[6] + "-" + intStr2[7] + intStr2[8];
+    newAuto.id = allAuto[allAuto.size() - 1].id + 1;
+    newAuto.model = getValueStr("Укажите модель авто");
+    newAuto.receipt_date = getValueStr("Укажите дату поступления");
+    newAuto.departure_date = getValueStr("Укажите дату продажи (при необходимости)");
+    newAuto.cost = getValueInt("Укажите стоимость авто");
+    newAuto.Autoequipment.body = getValueStr("Укажите тип кузова");
+    newAuto.Autoequipment.color = getValueStr("Укажите цвет авто");
+    newAuto.Autoequipment.equipment = getValueStr("Укажите комплектацию");
     return newAuto;
 }
 
@@ -839,7 +800,7 @@ bool CreateOrDeleteFD(bool createOrDelete)
     }
 }
 
-// проеверка файла админа
+// провеерка файла админа
 bool CreateOrDeleteAdminFile()
 {
     ifstream fin("admin.txt", ios_base::in);
@@ -854,9 +815,9 @@ bool CreateOrDeleteAdminFile()
     }
 }
 
-/*
-функции работы меню
-*/
+                                                                    /*
+                                                                    функции работы меню
+                                                                    */
 
 void GetChoiceMenuAdmin()
 {
@@ -949,30 +910,24 @@ void GetChoiceMenuAdmin()
                 if (availabilityAuto) {
                     while (ok == false)
                     {
-                        continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по имени\n2 - Сортировка по фамиии\n3 - Сортировка по отделу\n4 - Назад\n");
-                        if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4)
+                        continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по модели\n2 - Сортировка по цвету\n3 - Назад\n");
+                        if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3)
                         {
                             switch (continueAnsw)
                             {
                             case 1:
                                 system("cls");
-                                cout << "Сортировка по имени\n" << endl;
-                                sortFN();
+                                cout << "Сортировка по модели\n" << endl;
+                                sortModel();
                                 printTable();
                                 continue;
                             case 2:
                                 system("cls");
-                                cout << "Сортировка по фамиии\n" << endl;
-                                sortLN();
+                                cout << "Сортировка по цвету\n" << endl;
+                                sortColor();
                                 printTable();
                                 continue;
                             case 3:
-                                system("cls");
-                                cout << "Сортировка по отделу\n" << endl;
-                                sortDep();
-                                printTable();
-                                continue;
-                            case 4:
                                 GetChoiceMenuAdmin();
                                 break;
                             default:
@@ -1104,9 +1059,10 @@ void GetChoiceAutoDataRecords()
     case 2:
         system("cls");
         cout << "Редактирование записи" << endl;
+        printTable();
         if (changeWirkerInMemory())
         {
-            cout << "    Данные работника изменены" << endl;
+            cout << "    Данные авто изменены" << endl;
             system("pause");
             GetChoiceAutoDataRecords();
         }
@@ -1120,9 +1076,10 @@ void GetChoiceAutoDataRecords()
     case 3:
         system("cls");
         cout << "Удаление записи" << endl;
+        printTable();
         if (deleteWirkerInMemory())
         {
-            cout << "Работник удалён." << endl;
+            cout << "Авто удалено." << endl;
             system("pause");
             GetChoiceAutoDataRecords();
         }
@@ -1140,30 +1097,24 @@ void GetChoiceAutoDataRecords()
         if (availabilityAuto) {
             while (ok == false)
             {
-                continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по имени\n2 - Сортировка по фамиии\n3 - Сортировка по отделу\n4 - Назад\n");
-                if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4)
+                continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по модели\n2 - Сортировка по цвету\n3 - Назад\n");
+                if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 )
                 {
                     switch (continueAnsw)
                     {
                     case 1:
                         system("cls");
-                        cout << "Сортировка по имени\n" << endl;
-                        sortFN();
+                        cout << "Сортировка по модели\n" << endl;
+                        sortModel();
                         printTable();
                         continue;
                     case 2:
                         system("cls");
-                        cout << "Сортировка по фамиии\n" << endl;
-                        sortLN();
+                        cout << "Сортировка по цвету\n" << endl;
+                        sortColor();
                         printTable();
                         continue;
                     case 3:
-                        system("cls");
-                        cout << "Сортировка по отделу\n" << endl;
-                        sortDep();
-                        printTable();
-                        continue;
-                    case 4:
                         GetChoiceAutoDataRecords();
                         break;
                     default:
@@ -1189,8 +1140,8 @@ void GetChoiceAutoDataRecords()
         cout << "и вывод в таблицу" << endl;
         while (ok == false)
         {
-            continueAnsw = getValueInt("\nВарианты поиска?\n1 - по фамилии\n2 - по имени\n3 - по отчетсву\n4 - по отделу\n5 - Назад\n6 - Выход\n");
-            if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4 || continueAnsw == 5)
+            continueAnsw = getValueInt("\nВарианты поиска?\n1 - по модели\n2 - по цвету\n3 - Назад\n4 - Выход\n");
+            if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4)
             {
                 ok = true;
             }
@@ -1199,11 +1150,11 @@ void GetChoiceAutoDataRecords()
                 cout << "Введите одно из указанных чисел.\n";
             }
         }
-        if (continueAnsw == 5)
+        if (continueAnsw == 3)
         {
             GetChoiceMenuAdmin();
         }
-        if (continueAnsw == 6)
+        if (continueAnsw == 4)
         {
             cout << "Выход!";
             exit(0);
@@ -1212,10 +1163,10 @@ void GetChoiceAutoDataRecords()
         system("pause");
         GetChoiceAutoDataRecords();
         break;
-    case 7:
+    case 6:
         GetChoiceMenuAdmin();
         break;
-    case 8:
+    case 7:
         cout << "Выход!";
         exit(0);
     default:
@@ -1435,9 +1386,10 @@ void GetChoiceMenuManager()
     case 2:
         system("cls");
         cout << "Редактирование записи" << endl;
+        printTable();
         if (changeWirkerInMemory())
         {
-            cout << "Данные работника изменены" << endl;
+            cout << "Данные авто изменены" << endl;
             system("pause");
             GetChoiceMenuManager();
         }
@@ -1451,9 +1403,10 @@ void GetChoiceMenuManager()
     case 3:
         system("cls");
         cout << "Удаление записи" << endl;
+        printTable();
         if (deleteWirkerInMemory())
         {
-            cout << "Работник удалён." << endl;
+            cout << "Авто удалено." << endl;
             system("pause");
             GetChoiceMenuManager();
         }
@@ -1471,30 +1424,24 @@ void GetChoiceMenuManager()
         if (availabilityAuto) {
             while (ok == false)
             {
-                continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по имени\n2 - Сортировка по фамиии\n3 - Сортировка по отделу\n4 - Назад\n");
-                if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4)
+                continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по модели\n2 - Сортировка по цвету\n3 - Назад\n");
+                if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3)
                 {
                     switch (continueAnsw)
                     {
                     case 1:
                         system("cls");
-                        cout << "Сортировка по имени\n" << endl;
-                        sortFN();
+                        cout << "Сортировка по модели\n" << endl;
+                        sortModel();
                         printTable();
                         continue;
                     case 2:
                         system("cls");
-                        cout << "Сортировка по фамиии\n" << endl;
-                        sortLN();
+                        cout << "Сортировка по цвету\n" << endl;
+                        sortColor();
                         printTable();
                         continue;
                     case 3:
-                        system("cls");
-                        cout << "Сортировка по отделу\n" << endl;
-                        sortDep();
-                        printTable();
-                        continue;
-                    case 4:
                         GetChoiceMenuManager();
                         break;
                     default:
@@ -1520,8 +1467,8 @@ void GetChoiceMenuManager()
         cout << "и вывод в таблицу" << endl;
         while (ok == false)
         {
-            continueAnsw = getValueInt("\nВарианты поиска?\n1 - по фамилии\n2 - по имени\n3 - по отчетсву\n4 - по отделу\n5 - Назад\n6 - Выход\n");
-            if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4 || continueAnsw == 5)
+            continueAnsw = getValueInt("\nВарианты поиска?\n1 - по модели\n2 - по цвету\n3 - Назад\n4 - Выход\n");
+            if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4)
             {
                 ok = true;
             }
@@ -1530,11 +1477,11 @@ void GetChoiceMenuManager()
                 cout << "Введите одно из указанных чисел.\n";
             }
         }
-        if (continueAnsw == 5)
+        if (continueAnsw == 3)
         {
             GetChoiceMenuManager();
         }
-        if (continueAnsw == 6)
+        if (continueAnsw == 4)
         {
             cout << "Выход!";
             exit(0);
@@ -1543,7 +1490,7 @@ void GetChoiceMenuManager()
         system("pause");
         GetChoiceMenuManager();
         break;
-    case 7:
+    case 6:
         cout << "Выход!";
         exit(0);
     default:
@@ -1576,30 +1523,24 @@ void GetChoiceMenuUser()
         if (availabilityAuto) {
             while (ok == false)
             {
-                continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по имени\n2 - Сортировка по фамиии\n3 - Сортировка по отделу\n4 - Назад\n");
-                if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4)
+                continueAnsw = getValueInt("Ваш действия?\n1 - Сортировка по модели\n2 - Сортировка по цвету\n3 - Назад\n");
+                if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3)
                 {
                     switch (continueAnsw)
                     {
                     case 1:
                         system("cls");
-                        cout << "Сортировка по имени\n" << endl;
-                        sortFN();
+                        cout << "Сортировка по модели\n" << endl;
+                        sortModel();
                         printTable();
                         continue;
                     case 2:
                         system("cls");
-                        cout << "Сортировка по фамиии\n" << endl;
-                        sortLN();
+                        cout << "Сортировка по цвету\n" << endl;
+                        sortColor();
                         printTable();
                         continue;
                     case 3:
-                        system("cls");
-                        cout << "Сортировка по отделу\n" << endl;
-                        sortDep();
-                        printTable();
-                        continue;
-                    case 4:
                         GetChoiceMenuUser();
                         break;
                     default:
@@ -1621,12 +1562,12 @@ void GetChoiceMenuUser()
         break;
     case 2:
         system("cls");
-        cout << "   Поиск записей" << endl;
+        cout << "  Поиск записей" << endl;
         cout << "и вывод в таблицу" << endl;
         while (ok == false)
         {
-            continueAnsw = getValueInt("\nВарианты поиска?\n1 - по фамилии\n2 - по имени\n3 - по отчетсву\n4 - по отделу\n5 - Назад\n6 - Выход\n");
-            if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4 || continueAnsw == 5)
+            continueAnsw = getValueInt("\nВарианты поиска?\n1 - по модели\n2 - по цвету\n3 - Назад\n4 - Выход\n");
+            if (continueAnsw == 1 || continueAnsw == 2 || continueAnsw == 3 || continueAnsw == 4)
             {
                 ok = true;
             }
@@ -1635,11 +1576,11 @@ void GetChoiceMenuUser()
                 cout << "Введите одно из указанных чисел.\n";
             }
         }
-        if (continueAnsw == 5)
+        if (continueAnsw == 3)
         {
             GetChoiceMenuUser();
         }
-        if (continueAnsw == 6)
+        if (continueAnsw == 4)
         {
             cout << "Выход!";
             exit(0);
@@ -1648,7 +1589,7 @@ void GetChoiceMenuUser()
         system("pause");
         GetChoiceMenuUser();
         break;
-    case 4:
+    case 3:
         cout << "Выход!";
         exit(0);
     default:
