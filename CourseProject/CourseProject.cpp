@@ -226,96 +226,6 @@ void PrintMenuUser()
                                                                 /*
                                                                 функции работы c пользователями
                                                                 */
-
-void GetLogiAndPass(int choice)
-{
-    bool ok = false;
-    char fileLogin[127];
-    char filePass[127];
-    int Profile = 0;
-    int i = 1;
-    Profile searchProfile;
-    while (ok == false)
-    {
-        if (i == 1)
-        {
-            system("cls");
-            char choiceLogin[127];
-            cout << "Введите логин:\n";
-            cin >> choiceLogin;
-            std::ifstream openFile(choiceLogin, std::ios::in | std::ios::binary);
-            if (!openFile.is_open()) // если файл не открыт
-            {
-                cout << "Пользователь с таким логином не найден!\n";
-                int continueAnsw;
-                bool okContin = false;
-                while (okContin == false)
-                {
-                    continueAnsw = getValueInt("Продолжаем?\n1 - Да\n2 - нет\n");
-                    if (continueAnsw == 1 || continueAnsw == 2)
-                    {
-                        okContin = true;
-                    }
-                    else
-                    {
-                        cout << "Введите одно из указанных чисел.\n" << endl;
-                    }
-                }
-                if (continueAnsw == 2)
-                {
-                    cout << "Операция прервана\n" << endl;
-                    system("pause");
-                    exit(0);
-                }
-            }
-            else
-            {
-                openFile.read((char*)&searchProfile, sizeof(Profile));
-                openFile.close();
-                i = 2;
-            }
-        }
-        if (i == 2)
-        {
-            system("cls");
-            char choicePass[127];
-            cout << "Введите пароль:\n";
-            cin >> choicePass;;
-            if (strcmp(choicePass, searchProfile.password) == 0)
-            {
-                ok = true;
-            }
-            else
-            {
-                cout << "Ошибка пароля. Повторите ввод.\n"; // сообщить об этом
-                int continueAnsw;
-                bool okContin = false;
-                while (okContin == false)
-                {
-                    continueAnsw = getValueInt("Продолжаем?\n1 - Да\n2 - нет\n");
-                    if (continueAnsw == 1 || continueAnsw == 2)
-                    {
-                        okContin = true;
-                    }
-                    else
-                    {
-                        cout << "Введите одно из указанных чисел.\n" << endl;
-                    }
-                }
-                if (continueAnsw == 2)
-                {
-                    cout << "Операция прервана\n" << endl;
-                    system("pause");
-                    exit(0);
-                }
-            }
-        }
-    }
-    if (searchProfile.level == 1) { GetChoiceMenuAdmin(); }
-    if (searchProfile.level == 2) { GetChoiceMenuManager(); }
-    if (searchProfile.level == 3) { GetChoiceMenuUser(); }
-}
-
 // запись данных в файла профиля
 string WorkProfileFD(Profile user, bool rePass, bool del)
 {
@@ -391,8 +301,6 @@ string WorkProfileFD(Profile user, bool rePass, bool del)
     }
 
 }
-
-
 
 // сбор данных для пользователя
 Profile GetNewProfile()
@@ -592,16 +500,9 @@ bool creatRecordInFD(bool atMemory)
             + "#" + newAuto.model
             + "#" + newAuto.departure_date
             + "#" + newAuto.cost
-            + "#" + newAuto.educationAuto.nameEdComp
-            + "#" + newAuto.educationAuto.spacialization
-            + "#" + to_string(newAuto.educationAuto.yearEndEducation)
-            + "#" + newAuto.martStatus
-            + "#" + newAuto.homeTelNumber
             + "#" + newAuto.Autoequipment.body
             + "#" + newAuto.Autoequipment.color
-            + "#" + newAuto.Autoequipment.equipment
-            + "#" + newAuto.Autoequipment.workTelNumber
-            + "#" + newAuto.Autoequipment.dateStopWork;
+            + "#" + newAuto.Autoequipment.equipment;
         std::ofstream out("dataFile.txt", std::ios::app);
         if (out.is_open())
         {
