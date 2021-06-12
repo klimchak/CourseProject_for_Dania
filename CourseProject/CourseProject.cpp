@@ -1629,7 +1629,8 @@ int main(int argc, char* argv[])
                     admin.level = 1;
                     out = WorkProfileFD(admin, false, false);
                     cout << out;
-                    cout << "\n    пароль для входа: pass\n";
+                    cout << "\n    Логин для входа: admin\n";
+                    cout << "\n    Пароль для входа: pass\n";
                     system("pause");
                     ok = true;
                     break;
@@ -1759,6 +1760,3 @@ int main(int argc, char* argv[])
         }
     }
 }
-
-
-
